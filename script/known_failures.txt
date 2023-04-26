@@ -1,0 +1,1 @@
+examples/puppet/spec/fixtures/unit/parser/functions/create_resources/foo/manifests/wrongdefine.pp

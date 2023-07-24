@@ -25,7 +25,7 @@ function clone_repo {
 	popd >/dev/null
 }
 
-clone_repo puppetlabs puppet 1f413e9b044a5933a31792bc1510a7a63d69f348
+clone_repo puppetlabs puppet 9614e6125cdaea692424e8962827fb882030d5cf
 
 known_failures="$(cat script/known_failures.txt)"
 

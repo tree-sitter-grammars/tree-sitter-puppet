@@ -176,6 +176,10 @@
         "named": true
       },
       {
+        "type": "unless_statement",
+        "named": true
+      },
+      {
         "type": "variable",
         "named": true
       }
@@ -1274,6 +1278,25 @@
     }
   },
   {
+    "type": "unless_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "block",
+          "named": true
+        },
+        {
+          "type": "expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "variable",
     "named": true,
     "fields": {},
@@ -1595,6 +1618,10 @@
   {
     "type": "undef",
     "named": true
+  },
+  {
+    "type": "unless",
+    "named": false
   },
   {
     "type": "{",

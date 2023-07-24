@@ -16,7 +16,7 @@ void Init(Local<Object> exports, Local<Object> module) {
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
     Local<Function> constructor = Nan::GetFunction(tpl).ToLocalChecked();
-    Local<Object>   instance =
+    Local<Object> instance =
         constructor->NewInstance(Nan::GetCurrentContext()).ToLocalChecked();
     Nan::SetInternalFieldPointer(instance, 0, tree_sitter_puppet());
 

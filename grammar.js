@@ -61,6 +61,7 @@ module.exports = grammar({
       $.include_statement,
       $.tag_statement,
       $.if_statement,
+      $.unless_statement,
       $.case_statement,
       $.function_call,
       $.method_call,
@@ -191,6 +192,12 @@ module.exports = grammar({
     elsif_statement: $ => seq('elsif', $.expression, $.block),
 
     else_statement: $ => seq('else', $.block),
+
+    unless_statement: $ => seq(
+      'unless',
+      $.expression,
+      $.block,
+    ),
 
     case_statement: $ => seq(
       'case',

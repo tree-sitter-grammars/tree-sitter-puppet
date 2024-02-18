@@ -58,6 +58,7 @@ module.exports = grammar({
       $.resource_collector,
       $.resource_default,
       $.selector,
+      $.require_statement,
       $.include_statement,
       $.tag_statement,
       $.if_statement,
@@ -168,6 +169,8 @@ module.exports = grammar({
       '=>',
       field('value', choice($.expression, $.selector)),
     ),
+
+    require_statement: $ => seq('require', choice($._identifier, $.string)),
 
     include_statement: $ => seq('include', commaSep1(choice($._identifier, $.variable, $.string))),
 

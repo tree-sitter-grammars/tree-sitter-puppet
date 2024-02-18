@@ -31,6 +31,11 @@ const PREC = {
 module.exports = grammar({
   name: 'puppet',
 
+  conflicts: $ => [
+    [$.statement, $.expression],
+    [$.statement, $.literal],
+  ],
+
   extras: $ => [
     $.comment,
     /\s/,
@@ -64,8 +69,8 @@ module.exports = grammar({
       $.if_statement,
       $.unless_statement,
       $.case_statement,
+      $.iterator_statement,
       $.function_call,
-      $.method_call,
       $.hash,
       $.variable,
       $.string,
@@ -115,12 +120,12 @@ module.exports = grammar({
       $.block,
     ),
 
-    type_declaration: $ => seq(
+    type_declaration: $ => prec.right(seq(
       'type',
       $._identifier,
       '=',
       $.type,
-    ),
+    )),
 
     assignment: $ => seq($.variable, choice('=', '+='), $.expression),
 
@@ -223,6 +228,14 @@ module.exports = grammar({
       $.block,
     ),
 
+    iterator_statement: $ => seq(
+      field('iterator', $.expression),
+      '|',
+      commaSep($.variable),
+      '|',
+      $.block,
+    ),
+
     resource_collector: $ => seq(
       $.identifier,
       choice('<<|', '<|'),
@@ -305,18 +318,18 @@ module.exports = grammar({
 
     search_expression: $ => seq($.identifier, choice('==', '!='), $.literal),
 
-    expression: $ => choice(
+    expression: $ => prec.right(choice(
       $.unary_expression,
       $.binary_expression,
       $.parenthesized_expression,
       $.function_call,
-      $.method_call,
+      $.field_expression,
       $.variable,
       $._identifier,
       $.array,
       $.hash,
       $.literal,
-    ),
+    )),
 
     unary_expression: $ => prec.right(PREC.UNARY, seq(
       field('operator', choice('!', '-', '*')),
@@ -358,8 +371,8 @@ module.exports = grammar({
 
     parenthesized_expression: $ => prec(PREC.PARENTHESES, seq('(', $.expression, ')')),
 
-    function_call: $ => prec.right(seq(
-      $._identifier,
+    function_call: $ => prec.right(PREC.CALL, seq(
+      $.expression,
       '(',
       optional(seq(
         sep1($.expression, ','),
@@ -369,15 +382,11 @@ module.exports = grammar({
       optional($.lambda),
     )),
 
-    method_call: $ => seq(
-      $._identifier,
+    field_expression: $ => prec(PREC.MEMBER, seq(
+      $.expression,
       '.',
-      $.identifier,
-      '(',
-      sep1($.expression, ','),
-      optional(','),
-      ')',
-    ),
+      $._identifier,
+    )),
 
     variable: $ => seq('$', $._identifier),
 
@@ -399,7 +408,7 @@ module.exports = grammar({
       '}',
     ),
 
-    literal: $ => choice(
+    literal: $ => prec.right(choice(
       $.resource_reference,
       $.number,
       $.float,
@@ -407,7 +416,7 @@ module.exports = grammar({
       $.regex,
       $.boolean,
       $.undef,
-    ),
+    )),
 
     resource_reference: $ => seq(
       choice($.identifier, $.variable, $.resource_reference),
@@ -471,7 +480,7 @@ module.exports = grammar({
 
     interpolation: $ => prec(1, seq('${', choice($.expression, $.if_statement), '}')),
 
-    regex: _ => token(seq('/', /[^\/]*/, '/')),
+    regex: _ => token(seq('/', /[^*][^\/]*/, '/')),
 
     boolean: _ => choice('true', 'false'),
 
@@ -479,7 +488,7 @@ module.exports = grammar({
 
     default: _ => 'default',
 
-    _identifier: $ => choice($.class_identifier, $.identifier),
+    _identifier: $ => prec.right(choice($.class_identifier, $.identifier)),
 
     class_identifier: $ => seq(choice('$', $.identifier), '::', sep1($.identifier, '::')),
 

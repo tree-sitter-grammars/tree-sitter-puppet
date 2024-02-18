@@ -48,8 +48,6 @@
 
 (function_call (identifier) @parameter)
 
-(method_call (identifier) @parameter)
-
 ; Functions
 
 (function_declaration
@@ -57,6 +55,9 @@
 
 (function_call
   (identifier) @function.call "(")
+
+(function_call
+  (field_expression "." (identifier) @method.call) "(")
 
 (defined_resource_type
   "define" . (identifier) @function)
@@ -71,9 +72,6 @@
 
 (defined_resource_type
   "define" . (class_identifier (identifier) @method . ))
-
-(method_call
-  "." . (identifier) @method.call)
 
 ; Types
 

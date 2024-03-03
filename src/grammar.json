@@ -2468,7 +2468,7 @@
       }
     },
     "function_call": {
-      "type": "PREC_RIGHT",
+      "type": "PREC_LEFT",
       "value": 12,
       "content": {
         "type": "SEQ",

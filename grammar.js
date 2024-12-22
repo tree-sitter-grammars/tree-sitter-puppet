@@ -5,9 +5,6 @@
  * @see {@link https://www.puppet.com/docs/puppet/6/puppet_language.html|Official Website}
  */
 
-/* eslint-disable arrow-parens */
-/* eslint-disable camelcase */
-/* eslint-disable-next-line spaced-comment */
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
@@ -177,7 +174,15 @@ module.exports = grammar({
 
     require_statement: $ => seq('require', choice($._identifier, $.string)),
 
-    include_statement: $ => seq('include', commaSep1(choice($._identifier, $.variable, $.string))),
+    include_statement: $ => prec(-1, seq(
+      'include',
+      commaSep1(prec(-1, choice(
+        $._identifier,
+        $.variable,
+        $.string,
+        $.function_call,
+      ))),
+    )),
 
     tag_statement: $ => seq(
       'tag',
@@ -506,8 +511,7 @@ module.exports = grammar({
  *
  * @param {Rule} rule
  *
- * @return {ChoiceRule}
- *
+ * @returns {ChoiceRule}
  */
 function commaSep(rule) {
   return optional(commaSep1(rule));
@@ -518,8 +522,7 @@ function commaSep(rule) {
  *
  * @param {Rule} rule
  *
- * @return {SeqRule}
- *
+ * @returns {SeqRule}
  */
 function commaSep1(rule) {
   return sep1(rule, ',');
@@ -528,12 +531,11 @@ function commaSep1(rule) {
 /**
  * Creates a rule to match one or more occurrences of `rule` separated by `sep`
  *
- * @param {RegExp|Rule|String} rule
+ * @param {RegExp | Rule | string} rule
  *
- * @param {RegExp|Rule|String} sep
+ * @param {RegExp | Rule | string} sep
  *
- * @return {SeqRule}
- *
+ * @returns {SeqRule}
  */
 function sep1(rule, sep) {
   return seq(rule, repeat(seq(sep, rule)));

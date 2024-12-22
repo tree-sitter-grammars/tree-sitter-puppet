@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.3.0](https://github.com/tree-sitter-grammars/tree-sitter-puppet/compare/v1.2.0...v1.3.0) (2024-12-22)
+
+
+### Features
+
+* iterator statement ([6d3c550](https://github.com/tree-sitter-grammars/tree-sitter-puppet/commit/6d3c550ea9f998402c614fbfc2cf010465acef0f))
+* require statement ([b494b40](https://github.com/tree-sitter-grammars/tree-sitter-puppet/commit/b494b404ea8d885fb85faaa8b3339ddeec704c12))
+
+
+### Bug Fixes
+
+* function call should not try to greedily parse lambdas ([5849f96](https://github.com/tree-sitter-grammars/tree-sitter-puppet/commit/5849f9694197a6e822872945b415429c285fdd54))
+* **grammar:** adapt to upstream regex change ([584522f](https://github.com/tree-sitter-grammars/tree-sitter-puppet/commit/584522f32495d648b18a53ccb52d988e60de127d))
+
 ## [1.2.0](https://github.com/amaanq/tree-sitter-puppet/compare/v1.1.0...v1.2.0) (2023-07-24)
 
 

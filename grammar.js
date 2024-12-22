@@ -485,7 +485,7 @@ module.exports = grammar({
 
     interpolation: $ => prec(1, seq('${', choice($.expression, $.if_statement), '}')),
 
-    regex: _ => token(seq('/', /[^*][^\/]*/, '/')),
+    regex: _ => token(seq('/', /[^*]([^\/]|\\\/)*/, '/')),
 
     boolean: _ => choice('true', 'false'),
 

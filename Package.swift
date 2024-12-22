@@ -3,35 +3,34 @@ import PackageDescription
 
 let package = Package(
     name: "TreeSitterPuppet",
-    platforms: [.macOS(.v10_13), .iOS(.v11)],
     products: [
         .library(name: "TreeSitterPuppet", targets: ["TreeSitterPuppet"]),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/ChimeHQ/SwiftTreeSitter", from: "0.8.0"),
+    ],
     targets: [
-        .target(name: "TreeSitterPuppet",
-                path: ".",
-                exclude: [
-                    "binding.gyp",
-                    "bindings",
-                    "Cargo.toml",
-                    "examples",
-                    "test",
-                    "grammar.js",
-                    "LICENSE",
-                    "package.json",
-                    "README.md",
-                    "script",
-                    "src/grammar.json",
-                    "src/node-types.json",
-                ],
-                sources: [
-                    "src/parser.c",
-                ],
-                resources: [
-                    .copy("queries")
-                ],
-                publicHeadersPath: "bindings/swift",
-                cSettings: [.headerSearchPath("src")])
-    ]
+        .target(
+            name: "TreeSitterPuppet",
+            dependencies: [],
+            path: ".",
+            sources: [
+                "src/parser.c",
+            ],
+            resources: [
+                .copy("queries")
+            ],
+            publicHeadersPath: "bindings/swift",
+            cSettings: [.headerSearchPath("src")]
+        ),
+        .testTarget(
+            name: "TreeSitterPuppetTests",
+            dependencies: [
+                "SwiftTreeSitter",
+                "TreeSitterPuppet",
+            ],
+            path: "bindings/swift/TreeSitterPuppetTests"
+        )
+    ],
+    cLanguageStandard: .c11
 )

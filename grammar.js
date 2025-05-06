@@ -62,6 +62,7 @@ module.exports = grammar({
       $.selector,
       $.require_statement,
       $.include_statement,
+      $.contain_statement,
       $.tag_statement,
       $.if_statement,
       $.unless_statement,
@@ -73,6 +74,7 @@ module.exports = grammar({
       $.string,
       $._identifier,
       $.resource_reference,
+      $.resource_like_class
     )),
 
     block: $ => seq('{', repeat($.statement), '}'),
@@ -145,6 +147,13 @@ module.exports = grammar({
       $.block,
     ),
 
+    resource_like_class: $ => seq(
+      'class',
+      '{',
+      $._resource_block,
+      '}'
+    ),
+
     resource_declaration: $ => seq(
       optional(choice(
         field('virtual', '@'),
@@ -173,6 +182,8 @@ module.exports = grammar({
     ),
 
     require_statement: $ => seq('require', choice($._identifier, $.string)),
+
+    contain_statement: $ => seq('contain', choice($._identifier, $.string)),
 
     include_statement: $ => prec(-1, seq(
       'include',

@@ -12,6 +12,10 @@
         "named": true
       },
       {
+        "type": "case_statement",
+        "named": true
+      },
+      {
         "type": "class_identifier",
         "named": true
       },
@@ -32,6 +36,14 @@
         "named": true
       },
       {
+        "type": "if_statement",
+        "named": true
+      },
+      {
+        "type": "iterator_statement",
+        "named": true
+      },
+      {
         "type": "literal",
         "named": true
       },
@@ -41,6 +53,10 @@
       },
       {
         "type": "unary_expression",
+        "named": true
+      },
+      {
+        "type": "unless_statement",
         "named": true
       },
       {
@@ -88,7 +104,15 @@
     "named": true,
     "subtypes": [
       {
+        "type": "array",
+        "named": true
+      },
+      {
         "type": "assignment",
+        "named": true
+      },
+      {
+        "type": "binary_expression",
         "named": true
       },
       {
@@ -281,6 +305,26 @@
         "required": true,
         "types": [
           {
+            "type": "*",
+            "named": false
+          },
+          {
+            "type": "boolean",
+            "named": true
+          },
+          {
+            "type": "class_identifier",
+            "named": true
+          },
+          {
+            "type": "default",
+            "named": true
+          },
+          {
+            "type": "float",
+            "named": true
+          },
+          {
             "type": "identifier",
             "named": true
           },
@@ -293,7 +337,19 @@
             "named": true
           },
           {
+            "type": "resource_reference",
+            "named": true
+          },
+          {
             "type": "string",
+            "named": true
+          },
+          {
+            "type": "unary_expression",
+            "named": true
+          },
+          {
+            "type": "undef",
             "named": true
           },
           {
@@ -341,6 +397,10 @@
         "multiple": false,
         "required": true,
         "types": [
+          {
+            "type": "composite_type",
+            "named": true
+          },
           {
             "type": "identifier",
             "named": true
@@ -616,6 +676,22 @@
       "required": true,
       "types": [
         {
+          "type": "default",
+          "named": true
+        },
+        {
+          "type": "float",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "regex",
+          "named": true
+        },
+        {
           "type": "string",
           "named": true
         },
@@ -848,10 +924,6 @@
         {
           "type": "expression",
           "named": true
-        },
-        {
-          "type": "if_statement",
-          "named": true
         }
       ]
     }
@@ -880,6 +952,10 @@
           "named": true
         },
         {
+          "type": "parameter",
+          "named": true
+        },
+        {
           "type": "variable",
           "named": true
         }
@@ -896,6 +972,10 @@
       "types": [
         {
           "type": "block",
+          "named": true
+        },
+        {
+          "type": "parameter",
           "named": true
         },
         {
@@ -938,6 +1018,10 @@
         },
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "regex",
           "named": true
         },
         {
@@ -1043,6 +1127,10 @@
       "required": true,
       "types": [
         {
+          "type": "class_identifier",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -1081,6 +1169,10 @@
         "multiple": false,
         "required": true,
         "types": [
+          {
+            "type": "class",
+            "named": false
+          },
           {
             "type": "class_identifier",
             "named": true
@@ -1156,19 +1248,11 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
+          "type": "expression",
           "named": true
         },
         {
           "type": "resource_reference",
-          "named": true
-        },
-        {
-          "type": "string",
-          "named": true
-        },
-        {
-          "type": "variable",
           "named": true
         }
       ]
@@ -1183,11 +1267,11 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
+          "type": "expression",
           "named": true
         },
         {
-          "type": "literal",
+          "type": "search_expression",
           "named": true
         }
       ]
@@ -1210,7 +1294,7 @@
           "named": true
         },
         {
-          "type": "variable",
+          "type": "expression",
           "named": true
         }
       ]
@@ -1591,7 +1675,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "default",

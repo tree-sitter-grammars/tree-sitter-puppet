@@ -1,0 +1,433 @@
+================================================================================
+Resource-like class declaration
+================================================================================
+
+class { 'ntp':
+  servers => ['0.pool.ntp.org'],
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (resource_declaration
+    (string
+      (string_content))
+    (attribute
+      (identifier)
+      (array
+        (string
+          (string_content))))))
+
+================================================================================
+Node with a regular expression name
+================================================================================
+
+node /^web\d+\.example\.com$/ {
+  include profile::web
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (node_definition
+    (node_name
+      (regex))
+    (block
+      (include_statement
+        (class_identifier
+          (identifier)
+          (identifier))))))
+
+================================================================================
+Expression as the last statement of a function body
+================================================================================
+
+function double(Integer $value) >> Integer {
+  $value * 2
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    (identifier)
+    (parameter_list
+      (parameter
+        (builtin_type)
+        (variable
+          (identifier))))
+    (builtin_type)
+    (block
+      (binary_expression
+        (variable
+          (identifier))
+        (number)))))
+
+================================================================================
+Absolute names
+================================================================================
+
+::apache::mod { 'ssl': }
+include ::nginx
+$os = $::facts['os']
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (resource_declaration
+    (class_identifier
+      (identifier)
+      (identifier))
+    (string
+      (string_content)))
+  (include_statement
+    (class_identifier
+      (identifier)))
+  (assignment
+    (variable
+      (identifier))
+    (resource_reference
+      (variable
+        (class_identifier
+          (identifier)))
+      (string
+        (string_content)))))
+
+================================================================================
+Resource collectors
+================================================================================
+
+Example::Expiringhost <<| |>>
+Apache::Balancermember <<| balancer_cluster == $name and ensure != 'absent' |>>
+File <| tag == 'x' |>
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (resource_collector
+    (class_identifier
+      (identifier)
+      (identifier)))
+  (resource_collector
+    (class_identifier
+      (identifier)
+      (identifier))
+    (search_expression
+      (search_expression
+        (identifier)
+        (variable
+          (identifier)))
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))))
+  (resource_collector
+    (identifier)
+    (search_expression
+      (identifier)
+      (string
+        (string_content)))))
+
+================================================================================
+Lambda call on a method in an assignment, with typed parameters
+================================================================================
+
+$paths = $dirs.map |$dir| { "/srv/${dir}" }
+$rules.each |String[1] $name, Hash $rule| {
+  notice($name)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (assignment
+    (variable
+      (identifier))
+    (iterator_statement
+      (field_expression
+        (variable
+          (identifier))
+        (identifier))
+      (variable
+        (identifier))
+      (block
+        (string
+          (string_content)
+          (interpolation
+            (identifier))))))
+  (iterator_statement
+    (field_expression
+      (variable
+        (identifier))
+      (identifier))
+    (parameter
+      (array_type
+        (builtin_type)
+        (number))
+      (variable
+        (identifier)))
+    (parameter
+      (builtin_type)
+      (variable
+        (identifier)))
+    (block
+      (function_call
+        (identifier)
+        (variable
+          (identifier))))))
+
+================================================================================
+Selector on an indexed value, splat attribute and if as a value
+================================================================================
+
+$package = $facts['os']['name'] ? {
+  'Debian' => 'apache2',
+  default  => 'httpd',
+}
+
+file { '/etc/x':
+  * => $attributes,
+  content => if $secret { Sensitive($value) } else { $value },
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (selector
+    (assignment
+      (variable
+        (identifier))
+      (resource_reference
+        (resource_reference
+          (variable
+            (identifier))
+          (string
+            (string_content)))
+        (string
+          (string_content))))
+    (attribute
+      (string
+        (string_content))
+      (string
+        (string_content)))
+    (attribute
+      (default)
+      (string
+        (string_content))))
+  (resource_declaration
+    (identifier)
+    (string
+      (string_content))
+    (attribute
+      (variable
+        (identifier)))
+    (attribute
+      (identifier)
+      (if_statement
+        (variable
+          (identifier))
+        (block
+          (function_call
+            (identifier)
+            (variable
+              (identifier))))
+        (else_statement
+          (block
+            (variable
+              (identifier))))))))
+
+================================================================================
+Indexing and namespaced references
+================================================================================
+
+[File['/a'], File['/b'],] -> Service['x']
+$last = $parts[-1]
+$name = "${version_parts[0]}${version_parts[1]}"
+Apache::Mod['ssl'] -> Service['apache2']
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (relation
+    (array
+      (resource_reference
+        (identifier)
+        (string
+          (string_content)))
+      (resource_reference
+        (identifier)
+        (string
+          (string_content))))
+    (resource_reference
+      (identifier)
+      (string
+        (string_content))))
+  (assignment
+    (variable
+      (identifier))
+    (resource_reference
+      (variable
+        (identifier))
+      (unary_expression
+        (number))))
+  (assignment
+    (variable
+      (identifier))
+    (string
+      (interpolation
+        (resource_reference
+          (identifier)
+          (number)))
+      (interpolation
+        (resource_reference
+          (identifier)
+          (number)))))
+  (relation
+    (resource_reference
+      (class_identifier
+        (identifier)
+        (identifier))
+      (string
+        (string_content)))
+    (resource_reference
+      (identifier)
+      (string
+        (string_content)))))
+
+================================================================================
+Pattern and Optional types
+================================================================================
+
+type Apache::Settings = Struct[{
+  Optional['Dir'] => Pattern[/^\//],
+}]
+
+class a (
+  Optional[Pattern[/^[a-z]+$/]] $name = undef,
+  Array[Pattern[/=/]] $options = [],
+) { }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (type_declaration
+    (class_identifier
+      (identifier)
+      (identifier))
+    (composite_type
+      (identifier)
+      (attribute_type
+        (attribute_type_entry
+          (composite_type
+            (identifier)
+            (string
+              (string_content)))
+          (composite_type
+            (identifier)
+            (regex))))))
+  (class_definition
+    (identifier)
+    (parameter_list
+      (parameter
+        (composite_type
+          (identifier)
+          (composite_type
+            (identifier)
+            (regex)))
+        (variable
+          (identifier))
+        (undef))
+      (parameter
+        (array_type
+          (builtin_type)
+          (composite_type
+            (identifier)
+            (regex)))
+        (variable
+          (identifier))
+        (array)))
+    (block)))
+
+================================================================================
+Collector queries join comparisons with and/or, without parentheses
+================================================================================
+
+File <| tag == 'x' and ensure == 'present' |>
+File <| tag == 'x' or ensure != 'absent' |>
+File <| (tag == 'x') and (ensure == 'present') |>
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))))
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))))
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (search_expression
+          (identifier)
+          (string
+            (string_content))))
+      (search_expression
+        (search_expression
+          (identifier)
+          (string
+            (string_content)))))))
+
+================================================================================
+Collector query: and binds tighter than or, and values can be calls
+================================================================================
+
+File <| a == 1 or b == 2 and c == 3 |>
+File <| tag == lookup('k') and owner == $user |>
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (number))
+      (search_expression
+        (search_expression
+          (identifier)
+          (number))
+        (search_expression
+          (identifier)
+          (number)))))
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (function_call
+          (identifier)
+          (string
+            (string_content))))
+      (search_expression
+        (identifier)
+        (variable
+          (identifier))))))

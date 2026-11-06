@@ -31,6 +31,7 @@ module.exports = grammar({
   conflicts: $ => [
     [$.statement, $.expression],
     [$.statement, $.literal],
+    [$.class_identifier],
   ],
 
   extras: $ => [
@@ -60,6 +61,8 @@ module.exports = grammar({
       $.resource_collector,
       $.resource_default,
       $.selector,
+      $.binary_expression,
+      $.array,
       $.require_statement,
       $.include_statement,
       $.tag_statement,
@@ -108,7 +111,7 @@ module.exports = grammar({
       $.block,
     ),
 
-    node_name: $ => choice($.identifier, $.string, $.default),
+    node_name: $ => choice($.identifier, $.string, $.regex, $.default),
 
     defined_resource_type: $ => seq(
       'define',
@@ -133,7 +136,7 @@ module.exports = grammar({
     )),
 
     lambda: $ => seq(
-      optional(seq('|', commaSep($.variable), '|')),
+      optional(seq('|', commaSep($._lambda_parameter), '|')),
       $.block,
     ),
 
@@ -150,7 +153,7 @@ module.exports = grammar({
         field('virtual', '@'),
         field('exported', '@@'),
       )),
-      field('type', $._identifier),
+      field('type', choice($._identifier, 'class')),
       '{',
       sep1($._resource_block, ';'),
       optional(';'),
@@ -167,7 +170,7 @@ module.exports = grammar({
     ),
 
     attribute: $ => seq(
-      field('name', choice($.identifier, $.variable, $.string, $.regex, $.number)),
+      field('name', choice('*', $.identifier, $.class_identifier, $.variable, $.string, $.regex, $.number, $.float, $.undef, $.boolean, $.default, $.unary_expression, $.resource_reference)),
       '=>',
       field('value', choice($.expression, $.selector)),
     ),
@@ -236,13 +239,20 @@ module.exports = grammar({
     iterator_statement: $ => seq(
       field('iterator', $.expression),
       '|',
-      commaSep($.variable),
+      commaSep($._lambda_parameter),
       '|',
       $.block,
     ),
 
+    _lambda_parameter: $ => choice(
+      $.variable,
+      alias($._typed_variable, $.parameter),
+    ),
+
+    _typed_variable: $ => seq($.type, $.variable),
+
     resource_collector: $ => seq(
-      $.identifier,
+      choice($.identifier, $.class_identifier),
       choice('<<|', '<|'),
       optional($.search_expression),
       choice('|>>', '|>'),
@@ -259,7 +269,7 @@ module.exports = grammar({
     ),
 
     selector: $ => seq(
-      choice($.assignment, $.variable),
+      choice($.assignment, $.expression),
       '?',
       '{',
       optional(seq(
@@ -296,7 +306,7 @@ module.exports = grammar({
     composite_type: $ => seq(
       $.identifier,
       '[',
-      sep1(choice($.type, $.string), ','),
+      sep1(choice($.type, $.string, $.regex, $.number, $.float, $.default), ','),
       optional(','),
       ']',
     ),
@@ -311,7 +321,7 @@ module.exports = grammar({
     ),
 
     attribute_type_entry: $ => seq(
-      field('name', choice($.identifier, $.string)),
+      field('name', choice($.identifier, $.string, $.composite_type)),
       '=>',
       field('value', choice($.type, $.string, $.number)),
     ),
@@ -321,13 +331,40 @@ module.exports = grammar({
       seq('[', ']'), // empty
     ),
 
-    search_expression: $ => seq($.identifier, choice('==', '!='), $.literal),
+    // The value of a collector comparison. Not an `expression`: a binary expression would take the `and`/`or`
+    // that joins two comparisons (`tag == 'x' and ensure == 'present'`) as part of the value.
+    _search_operand: $ => choice(
+      $.variable,
+      $._identifier,
+      $.literal,
+      $.array,
+      alias($._search_call, $.function_call),
+    ),
+
+    // `lookup('k')`: a call whose callee is a plain name, so that it does not start with an `expression`.
+    _search_call: $ => seq(
+      $._identifier,
+      '(',
+      optional(seq(sep1($.expression, ','), optional(','))),
+      ')',
+    ),
+
+    search_expression: $ => choice(
+      seq($.identifier, choice('==', '!='), $._search_operand),
+      prec.left(2, seq($.search_expression, 'and', $.search_expression)),
+      prec.left(1, seq($.search_expression, 'or', $.search_expression)),
+      seq('(', $.search_expression, ')'),
+    ),
 
     expression: $ => prec.right(choice(
       $.unary_expression,
       $.binary_expression,
       $.parenthesized_expression,
       $.function_call,
+      $.iterator_statement,
+      $.if_statement,
+      $.unless_statement,
+      $.case_statement,
       $.field_expression,
       $.variable,
       $._identifier,
@@ -424,9 +461,9 @@ module.exports = grammar({
     )),
 
     resource_reference: $ => seq(
-      choice($.identifier, $.variable, $.resource_reference),
+      choice($.identifier, $.class_identifier, $.variable, $.resource_reference),
       '[',
-      commaSep1(choice($.identifier, $.variable, $.string)),
+      commaSep1($.expression),
       ']',
     ),
 
@@ -495,7 +532,11 @@ module.exports = grammar({
 
     _identifier: $ => prec.right(choice($.class_identifier, $.identifier)),
 
-    class_identifier: $ => seq(choice('$', $.identifier), '::', sep1($.identifier, '::')),
+    class_identifier: $ => choice(
+      seq(choice('$', $.identifier), '::', sep1($.identifier, '::')),
+      // absolute name, `::apache::mod`; a statement may start with it, so it must keep shifting `::`
+      prec.right(seq('::', sep1($.identifier, '::'))),
+    ),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 

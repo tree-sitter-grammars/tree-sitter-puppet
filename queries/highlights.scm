@@ -42,7 +42,7 @@
 
 ; Parameters
 
-(lambda (variable (identifier) @parameter))
+(iterator_statement (variable (identifier) @parameter))
 
 (parameter (variable (identifier) @parameter))
 

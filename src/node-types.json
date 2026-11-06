@@ -1267,11 +1267,31 @@
       "required": true,
       "types": [
         {
-          "type": "expression",
+          "type": "array",
+          "named": true
+        },
+        {
+          "type": "class_identifier",
+          "named": true
+        },
+        {
+          "type": "function_call",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "literal",
           "named": true
         },
         {
           "type": "search_expression",
+          "named": true
+        },
+        {
+          "type": "variable",
           "named": true
         }
       ]

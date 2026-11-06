@@ -331,9 +331,28 @@ module.exports = grammar({
       seq('[', ']'), // empty
     ),
 
+    // The value of a collector comparison. Not an `expression`: a binary expression would take the `and`/`or`
+    // that joins two comparisons (`tag == 'x' and ensure == 'present'`) as part of the value.
+    _search_operand: $ => choice(
+      $.variable,
+      $._identifier,
+      $.literal,
+      $.array,
+      alias($._search_call, $.function_call),
+    ),
+
+    // `lookup('k')`: a call whose callee is a plain name, so that it does not start with an `expression`.
+    _search_call: $ => seq(
+      $._identifier,
+      '(',
+      optional(seq(sep1($.expression, ','), optional(','))),
+      ')',
+    ),
+
     search_expression: $ => choice(
-      seq($.identifier, choice('==', '!='), $.expression),
-      prec.left(seq($.search_expression, choice('and', 'or'), $.search_expression)),
+      seq($.identifier, choice('==', '!='), $._search_operand),
+      prec.left(2, seq($.search_expression, 'and', $.search_expression)),
+      prec.left(1, seq($.search_expression, 'or', $.search_expression)),
       seq('(', $.search_expression, ')'),
     ),
 

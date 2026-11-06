@@ -113,14 +113,14 @@ File <| tag == 'x' |>
       (identifier)
       (identifier))
     (search_expression
-      (identifier)
-      (binary_expression
+      (search_expression
+        (identifier)
         (variable
-          (identifier))
-        (binary_expression
-          (identifier)
-          (string
-            (string_content))))))
+          (identifier)))
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))))
   (resource_collector
     (identifier)
     (search_expression
@@ -347,3 +347,87 @@ class a (
           (identifier))
         (array)))
     (block)))
+
+================================================================================
+Collector queries join comparisons with and/or, without parentheses
+================================================================================
+
+File <| tag == 'x' and ensure == 'present' |>
+File <| tag == 'x' or ensure != 'absent' |>
+File <| (tag == 'x') and (ensure == 'present') |>
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))))
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))
+      (search_expression
+        (identifier)
+        (string
+          (string_content)))))
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (search_expression
+          (identifier)
+          (string
+            (string_content))))
+      (search_expression
+        (search_expression
+          (identifier)
+          (string
+            (string_content)))))))
+
+================================================================================
+Collector query: and binds tighter than or, and values can be calls
+================================================================================
+
+File <| a == 1 or b == 2 and c == 3 |>
+File <| tag == lookup('k') and owner == $user |>
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (number))
+      (search_expression
+        (search_expression
+          (identifier)
+          (number))
+        (search_expression
+          (identifier)
+          (number)))))
+  (resource_collector
+    (identifier)
+    (search_expression
+      (search_expression
+        (identifier)
+        (function_call
+          (identifier)
+          (string
+            (string_content))))
+      (search_expression
+        (identifier)
+        (variable
+          (identifier))))))
